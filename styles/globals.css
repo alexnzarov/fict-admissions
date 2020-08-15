@@ -1,0 +1,16 @@
+header > .subtitle {
+  color: #7a7a7a;
+}
+
+header {
+  align-items: center;
+  margin-bottom: 3em;
+}
+
+.main {
+  padding: 2em 3em;
+}
+
+.field > button:not(:last-child) {
+  margin-right: 10px;
+}
