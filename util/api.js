@@ -1,7 +1,7 @@
 import axios from 'axios';
 import cookies from 'js-cookie';
 
-export const API_URL = 'http://127.0.0.1:3001';
+export const API_URL = 'http://134.122.90.94:3223';
 
 export const fetcher = async (path) => {
   const { data } = await axios.get(path, {
