@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const basicAuth = require('express-basic-auth');
@@ -9,11 +11,7 @@ const app = next({
 
 const handle = app.getRequestHandler();
 
-const users = {
-  alexnzarov: 'fwJYzcBjph',
-  ruthennium: 'eANRShPyst',
-  op: 'nXHsslKjkZ',
-};
+const users = JSON.parse(process.env.AUTH_USERS);
 
 (async () => {
   await app.prepare();
