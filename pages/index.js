@@ -5,6 +5,18 @@ import { fetcher, API_URL, post } from '../util/api';
 import { useState, useRef } from 'react';
 import ErrorMesage from '../components/ErrorMessage';
 
+const formatNumber = (n) => {
+  const str = n.toString();
+  return str.length < 2 ? `0${str}` : str;
+};
+
+const defaultResolvers = {
+  ['$now']: () => {
+    const now = new Date();
+    return `${formatNumber(now.getDate())}.${formatNumber(now.getMonth() + 1)}.${now.getFullYear()}`;
+  },
+};
+
 export default function Home() {
   const isMounted = useRef(true);
   const { data, error, revalidate, isValidating } = useSWR(`${API_URL}/templates`, fetcher, { shouldRetryOnError: false });
@@ -28,7 +40,24 @@ export default function Home() {
               : <Dropdown 
                   data={data.templates.map(t => ({ key: t.document, name: t.name }))} 
                   defaultText="Выберите шаблон..." 
-                  onChange={(v) => setTemplate(data.templates.find(t => t.document === v.key))}
+                  onChange={(v) => {
+                    const t = data.templates.find(t => t.document === v.key);
+
+                    if (t) {
+                      setTemplate(t);
+
+                      const defaultValues = {};
+
+                      for (let v of t.template) {
+                        if (v.default) {
+                          const value = defaultResolvers[v.default] ? defaultResolvers[v.default]() : v.default;
+                          defaultValues[v.token] = value;
+                        }
+                      }
+
+                      setTemplateData({ ...templateData, ...defaultValues });
+                    }
+                  }}
                   style={{ marginBottom: '3em' }}
                 />
           )
