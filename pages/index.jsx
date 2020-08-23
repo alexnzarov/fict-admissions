@@ -1,9 +1,10 @@
 import useSWR from 'swr';
 import Dropdown from "../components/Dropdown";
 import InputField from '../components/InputField';
-import { fetcher, API_URL, post } from '../util/api';
+import * as api from '../util/api';
 import { useState, useRef } from 'react';
 import ErrorMesage from '../components/ErrorMessage';
+import PageContainer from '../components/PageContainer';
 
 const formatNumber = (n) => {
   const str = n.toString();
@@ -19,18 +20,14 @@ const defaultResolvers = {
 
 export default function Home() {
   const isMounted = useRef(true);
-  const { data, error, revalidate, isValidating } = useSWR(`${API_URL}/templates`, fetcher, { shouldRetryOnError: false });
+  const { data, error, revalidate, isValidating } = useSWR(`${api.TEMPLATE_API}/templates`, api.fetch, { shouldRetryOnError: false });
   const [template, setTemplate] = useState(null);
   const [templateData, setTemplateData] = useState({});
   const [templateError, setTemplateError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="main container">
-      <header>
-        <h1 className="title">Создание документа</h1>
-        <p className="subtitle is-4">Выберите шаблон для начала работы</p>
-      </header>
+    <PageContainer title="Створення документу" subtitle="Оберіть шаблон для початку роботи">
       {
         (error && !isValidating)
           ? <ErrorMesage error={error} onClose={() => revalidate()} />
@@ -39,7 +36,8 @@ export default function Home() {
               ? <progress className="progress is-medium is-primary" max="100" />
               : <Dropdown 
                   data={data.templates.map(t => ({ key: t.document, name: t.name }))} 
-                  defaultText="Выберите шаблон..." 
+                  defaultText="Оберіть шаблон..." 
+                  active={template ? template.document : null}
                   onChange={(v) => {
                     const t = data.templates.find(t => t.document === v.key);
 
@@ -86,12 +84,12 @@ export default function Home() {
                 setLoading(true);
 
                 try {
-                  const { data } = await post(`${API_URL}/documents/download`, {
+                  const { data } = await api.post(`${api.TEMPLATE_API}/documents/download`, {
                     template: template.document,
                     data: templateData,
                   });
 
-                  window.open(`${API_URL}/documents/download?id=${data.id}`, '_blank');
+                  window.open(`${api.TEMPLATE_API}/documents/download?id=${data.id}`, '_blank');
 
                   if (isMounted) {
                     setLoading(false);
@@ -107,7 +105,7 @@ export default function Home() {
               <span className="icon">
                 <i className="fas fa-file-download"></i>
               </span>
-              <span>Скачать документ</span>
+              <span>Завантажити документ</span>
             </button>
             <button 
               className={`button is-info is-fullwidth ${loading ? 'is-loading' : ''}`}
@@ -116,12 +114,12 @@ export default function Home() {
                 setTemplateError(null);
 
                 try {
-                  await post(`${API_URL}/documents`, {
+                  await api.post(`${api.TEMPLATE_API}/documents`, {
                     template: template.document,
                     data: templateData,
                   });
 
-                  alert('Документ был отправлен.');
+                  alert('Документ надіслан.');
 
                   if (isMounted) {
                     setTemplateData({});
@@ -138,7 +136,7 @@ export default function Home() {
               <span className="icon">
                 <i className="fas fa-paper-plane"></i>
               </span>
-              <span>Отправить документ</span>
+              <span>Надіслати документ</span>
             </button>
           </div>
           {
@@ -147,6 +145,6 @@ export default function Home() {
           }
         </div>
       }
-    </div>
+    </PageContainer>
   )
 }
