@@ -6,74 +6,22 @@ import { useState, useRef } from 'react';
 import ErrorMesage from '../../components/ErrorMessage';
 import PageContainer from '../../components/PageContainer';
 import statuses from '../../util/status';
+import PositionActions from '../../components/PositionActions';
 
 const QueueRow = ({ queue: q, user: u, update }) => {
-  const isMounted = useRef(true);
   const router = useRouter();
   const status = !q.active ? statuses.notActive : statuses[q.position.status];
-  const [loading, setLoading] = useState(false);
 
   return (
     <tr>
       <th><a href={`/queues/${q.id}`} onClick={() => router.push(`/queues/${q.id}`)}>{q.name}</a></th>
-      <td>{q.position.relativePosition}</td>
+      <td>{q.position.status === 'processing' ? '-' : q.position.relativePosition}</td>
       <td>{q.position.code}</td>
       <td>
         <span className={`tag ${status.color}`}>{status.name}</span>
       </td>
       <td>
-        <div className="buttons is-fullwidth is-centered">
-          <button 
-            className={`button is-success is-small ${loading ? 'is-loading' : ''}`}
-            disabled={true}
-            onClick={() => {
-              router.push(`/?queue=${q.id}&user=${u.id}`);
-            }}
-          >
-            Розглянути
-          </button>
-          <button 
-            className={`button is-warning is-small ${loading ? 'is-loading' : ''}`}
-            disabled={loading}
-            onClick={async () => {
-              const response = window.prompt('На скільки позицій ви хочете посунути цього користувача?', '10');
-              const num = parseInt(response);
-              if (num && Number.isSafeInteger(num) && num > 0) {
-                setLoading(true);
-
-                await api.put(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`, { status: 'waiting', position: q.position.position + num })
-                  .catch(console.error);
-
-                if (isMounted) {
-                  setLoading(false);
-                  update();
-                }
-              }
-            }}
-          >
-            Посунути
-          </button>
-          <button 
-            className={`button is-danger is-small ${loading ? 'is-loading' : ''}`}
-            disabled={loading}
-            onClick={async () => {
-              const yes = window.confirm('Ви впевнені, що хочете видалити цього користувача з черги?');
-              if (yes) {
-                setLoading(true);
-
-                await api.delete(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`)
-                    .catch(console.error);
-
-                if (isMounted) {
-                  setLoading(false);
-                  update();
-                }
-              }
-            }}
-          >
-            Видалити
-          </button>
-        </div>
+        <PositionActions user={u} queue={q} status={q.position.status} position={q.position.position} update={update} />
       </td>
     </tr>
   );

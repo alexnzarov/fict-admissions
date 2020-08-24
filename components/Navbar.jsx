@@ -32,7 +32,7 @@ const Navbar = () => {
               <a className="navbar-item" onClick={() => router.push('/queues/create')}>
                 Створити чергу
               </a>
-              <a className="navbar-item" onClick={() => router.push('/queues/users/create')}>
+              <a className="navbar-item" onClick={() => router.push('/queues/users')}>
                 Додати користувача
               </a>
             </div>

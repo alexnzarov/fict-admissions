@@ -1,18 +1,17 @@
 import useSWR from 'swr';
 import { useRouter } from 'next/router';
-import * as api from '../../util/api';
+import * as api from '../../../util/api';
 import { useState, useRef } from 'react';
-import ErrorMesage from '../../components/ErrorMessage';
-import PageContainer from '../../components/PageContainer';
-import statuses from '../../util/status';
-import Pagination from '../../components/Pagination';
+import ErrorMesage from '../../../components/ErrorMessage';
+import PageContainer from '../../../components/PageContainer';
+import statuses from '../../../util/status';
+import Pagination from '../../../components/Pagination';
+import PositionActions from '../../../components/PositionActions';
 
 const PositionRow = ({ n, queue: q, position: p, update }) => {
   const { user: u } = p;
-  const isMounted = useRef(true);
   const router = useRouter();
   const status = !q.active ? statuses.notActive : statuses[p.status];
-  const [loading, setLoading] = useState(false);
 
   return (
     <tr>
@@ -23,58 +22,7 @@ const PositionRow = ({ n, queue: q, position: p, update }) => {
         <span className={`tag ${status.color}`}>{status.name}</span>
       </td>
       <td width="50%">
-        <div className="buttons is-fullwidth is-centered">
-          <button 
-            className={`button is-success is-small ${loading ? 'is-loading' : ''}`}
-            disabled={true}
-            onClick={() => {
-              router.push(`/?queue=${q.id}&user=${u.id}`);
-            }}
-          >
-            Розглянути
-          </button>
-          <button 
-            className={`button is-warning is-small ${loading ? 'is-loading' : ''}`}
-            disabled={loading}
-            onClick={async () => {
-              const response = window.prompt('На скільки позицій ви хочете посунути цього користувача?', '10');
-              const num = parseInt(response);
-              if (num && Number.isSafeInteger(num) && num > 0) {
-                setLoading(true);
-
-                await api.put(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`, { status: 'waiting', position: p.position + num })
-                  .catch(console.error);
-
-                if (isMounted) {
-                  setLoading(false);
-                  update();
-                }
-              }
-            }}
-          >
-            Посунути
-          </button>
-          <button 
-            className={`button is-danger is-small ${loading ? 'is-loading' : ''}`}
-            disabled={loading}
-            onClick={async () => {
-              const yes = window.confirm('Ви впевнені, що хочете видалити цього користувача з черги?');
-              if (yes) {
-                setLoading(true);
-
-                await api.delete(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`)
-                    .catch(console.error);
-
-                if (isMounted) {
-                  setLoading(false);
-                  update();
-                }
-              }
-            }}
-          >
-            Видалити
-          </button>
-        </div>
+        <PositionActions user={p.user} status={p.status} queue={q} position={p.position} update={update} />
       </td>
     </tr>
   );
@@ -84,6 +32,7 @@ const PAGE_SIZE = 10;
 
 const QueuePage = ({ queue: q, size, update: _update }) => {
   const isMounted = useRef(true);
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
@@ -116,14 +65,13 @@ const QueuePage = ({ queue: q, size, update: _update }) => {
       <div className="field is-grouped">
         <button
           className={`button is-info is-fullwidth ${loading ? 'is-loading' : ''}`}
-          disabled={true || loading || size === 0}
+          disabled={loading || size === 0}
           onClick={async () => {
             try {
-              await api.put(`${api.QUEUE_API}/queues/${q.id}`, { active: !q.active });
+              const { data } = await api.post(`${api.QUEUE_API}/queues/${q.id}/advance`);
 
               if (isMounted) {
-                update();
-                setLoading(false);
+                router.push(`/queues/${q.id}/users/${data.user.id}`);
               }
             } catch (e) {
               if (isMounted) {
@@ -210,5 +158,5 @@ export default function QueuePageContainer() {
           )
       }
     </PageContainer>
-  )
+  );
 }
