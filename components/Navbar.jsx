@@ -1,7 +1,16 @@
 import { useRouter } from 'next/router';
+import { askOperator, getOperator } from '../util/api';
+import { useEffect, useState } from 'react';
 
 const Navbar = () => {
   const router = useRouter();
+  const [operator, setOperator] = useState(getOperator());
+  
+  useEffect(() => {
+    if (!operator) {
+      setOperator(askOperator());
+    }
+  }, [operator]);
 
   return (
     <nav className="navbar has-shadow" role="navigation" aria-label="main navigation">
@@ -34,6 +43,25 @@ const Navbar = () => {
               </a>
               <a className="navbar-item" onClick={() => router.push('/queues/users')}>
                 Додати користувача
+              </a>
+            </div>
+          </div>
+
+          <div className="navbar-item has-dropdown is-hoverable">
+            <a className="navbar-link" onClick={() => router.push('/queues')}>
+              Оператор
+            </a>
+
+            <div className="navbar-dropdown">
+              <div className="navbar-item">
+                Номер: {operator}
+              </div>
+              <hr className="navbar-divider" />
+              <a 
+                className="navbar-item" 
+                onClick={() => setOperator(askOperator())}
+              >
+                Змінити номер оператора
               </a>
             </div>
           </div>
