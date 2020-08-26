@@ -67,6 +67,8 @@ const QueuePage = ({ queue: q, size, update: _update }) => {
           className={`button is-info is-fullwidth ${loading ? 'is-loading' : ''}`}
           disabled={loading || size === 0}
           onClick={async () => {
+            setLoading(true);
+
             try {
               const { data } = await api.post(`${api.QUEUE_API}/queues/${q.id}/advance`);
 
@@ -87,6 +89,8 @@ const QueuePage = ({ queue: q, size, update: _update }) => {
           className={`button ${q.active ? 'is-danger' : 'is-success'} is-outlined ${loading ? 'is-loading' : ''}`}
           disabled={loading}
           onClick={async () => {
+            setLoading(true);
+            
             try {
               await api.put(`${api.QUEUE_API}/queues/${q.id}`, { active: !q.active });
 
@@ -114,28 +118,30 @@ const QueuePage = ({ queue: q, size, update: _update }) => {
       <hr />
 
       {
-        (data && data.count > 0) &&
-        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <Pagination count={data.count} page={page} onChange={(p) => setPage(p)} pageSize={PAGE_SIZE} />
-          <div style={{ marginTop: '16px' }}>
-            <table className="table is-bordered is-fullwidth is-hoverable" style={{ verticalAlign: 'middle', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Код</th>
-                  <th>Користувач</th>
-                  <th>Статус</th>
-                  <th>Дія</th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  data.positions.map(p => <PositionRow key={p.id} queue={q} position={p} update={update} />)
-                }
-              </tbody>
-            </table>
+        (!data)
+          ? <progress className="progress is-medium is-primary" max="100" />
+          : data.count > 0 &&
+          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+            <Pagination count={data.count} page={page} onChange={(p) => setPage(p)} pageSize={PAGE_SIZE} />
+            <div style={{ marginTop: '16px' }}>
+              <table className="table is-bordered is-fullwidth is-hoverable" style={{ verticalAlign: 'middle', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Код</th>
+                    <th>Користувач</th>
+                    <th>Статус</th>
+                    <th>Дія</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    data.positions.map(p => <PositionRow key={p.id} queue={q} position={p} update={update} />)
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
       }
     </div>
   );

@@ -22,7 +22,7 @@ const CreateUserPage = () => {
     <PageContainer title="Черги" subtitle="Створення користувача для черги">
       <Dropdown 
         defaultText="Оберіть чергу..."
-        data={qdata ? qdata.queues.filter(v => v.active).map(q => ({ key: q.id, name: q.name })) : []} 
+        data={qdata ? qdata.queues.map(q => ({ key: q.id, name: q.name })) : []} 
         active={dropdownQueue}
         onChange={e => setDropdownQueue(e.key)}
         style={{ marginBottom: '15px' }}
