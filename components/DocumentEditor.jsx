@@ -86,7 +86,7 @@ const DocumentEditor = ({ defaultData = {} }) => {
                   const { data } = await api.post(`${api.TEMPLATE_API}/documents/download`, {
                     template: template.document,
                     data: templateData,
-                  }, false);
+                  }, {}, false);
 
                   window.open(`${api.TEMPLATE_API}/documents/download?id=${data.id}`, '_blank');
 
@@ -116,7 +116,7 @@ const DocumentEditor = ({ defaultData = {} }) => {
                   await api.post(`${api.TEMPLATE_API}/documents`, {
                     template: template.document,
                     data: templateData,
-                  }, false);
+                  }, {}, false);
 
                   alert('Документ надіслан.');
 
