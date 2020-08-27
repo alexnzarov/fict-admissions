@@ -61,7 +61,7 @@ const UserPage = ({ user: u, queues, update }) => {
 
       <Dropdown 
         defaultText='Оберіть чергу...' 
-        data={qdata ? qdata.queues.filter(v => v.active && !queues.find(q => q.id == v.id)).map(q => ({ key: q.id, name: q.name })) : []} 
+        data={qdata ? qdata.queues.filter(v => !queues.find(q => q.id == v.id)).map(q => ({ key: q.id, name: q.name })) : []} 
         active={dropdownQueue}
         onChange={e => setDropdownQueue(e.key)}
         style={{ marginRight: '5px' }}
