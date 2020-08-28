@@ -3,6 +3,10 @@ export default {
     name: 'Очікує',
     color: 'is-link',
   },
+  going: {
+    name: 'Піднімається',
+    color: 'is-primary',
+  },
   processing: {
     name: 'Розглядається',
     color: 'is-success',

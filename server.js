@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const basicAuth = require('express-basic-auth');
 const next = require('next');
 
 const app = next({
@@ -11,20 +10,12 @@ const app = next({
 
 const handle = app.getRequestHandler();
 
-const users = JSON.parse(process.env.AUTH_USERS);
-
 (async () => {
   await app.prepare();
 
   const server = express();
   
   server.use(cors());
-  server.use(basicAuth({ users, challenge: true }));
-  server.use((req, res, next) => {
-    const auth = req.headers.authorization;
-    res.cookie('local.token', auth.split(' ')[1]);
-    next();
-  });
 
   server.get('*', (req, res) => handle(req, res));
 

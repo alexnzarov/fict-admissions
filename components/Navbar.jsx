@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
-import { askOperator, getOperator } from '../util/api';
+import { askOperator, getOperator, hasAccess, getRole } from '../util/api';
 import { useEffect, useState } from 'react';
 
-const Navbar = () => {
+const Navbar = ({ auth: { role }, logout }) => {
   const router = useRouter();
   const [operator, setOperator] = useState(getOperator());
   
@@ -32,15 +32,25 @@ const Navbar = () => {
             Користувачі
           </a>
 
+          {
+            hasAccess(role, 'admin') &&
+            <a className="navbar-item" onClick={() => router.push('/mailing')}>
+              Розсилка
+            </a>
+          }
+
           <div className="navbar-item has-dropdown is-hoverable">
             <a className="navbar-link" onClick={() => router.push('/queues')}>
               Черги
             </a>
 
             <div className="navbar-dropdown">
-              <a className="navbar-item" onClick={() => router.push('/queues/create')}>
-                Створити чергу
-              </a>
+              {
+                hasAccess(role, 'admin') && 
+                <a className="navbar-item" onClick={() => router.push('/queues/create')}>
+                  Створити чергу
+                </a>
+              }
               <a className="navbar-item" onClick={() => router.push('/queues/users')}>
                 Додати користувача
               </a>
@@ -48,23 +58,41 @@ const Navbar = () => {
           </div>
 
           <div className="navbar-item has-dropdown is-hoverable">
-            <a className="navbar-link" onClick={() => router.push('/queues')}>
-              Оператор
+            <a className="navbar-link">
+              Профіль
             </a>
 
             <div className="navbar-dropdown">
               <div className="navbar-item">
-                Номер: {operator}
+                <b>{role.username}</b><i style={{ marginLeft: '5px' }}>({role.type})</i>
               </div>
               <hr className="navbar-divider" />
+
+              {
+                hasAccess(role, 'operator') &&
+                <>
+                  <div className="navbar-item">
+                    Номер: {operator}
+                  </div>
+                  <a 
+                    className="navbar-item" 
+                    onClick={() => setOperator(askOperator())}
+                  >
+                    Змінити номер оператора
+                  </a>
+                  <hr className="navbar-divider" />
+                </>
+              }
+
               <a 
                 className="navbar-item" 
-                onClick={() => setOperator(askOperator())}
+                onClick={() => logout()}
               >
-                Змінити номер оператора
+                Вийти
               </a>
             </div>
           </div>
+          
         </div>
       </div>
     </nav>

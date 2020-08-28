@@ -11,7 +11,7 @@ import PositionActions from '../../../components/PositionActions';
 const PositionRow = ({ n, queue: q, position: p, update }) => {
   const { user: u } = p;
   const router = useRouter();
-  const status = !q.active ? statuses.notActive : statuses[p.status];
+  const status = statuses[p.status];
 
   return (
     <tr>
@@ -44,6 +44,11 @@ const QueuePage = ({ queue: q, size, update: _update }) => {
   return (
     <div>
       <div className="tags">
+        {
+          q.open 
+            ? <span className="tag is-success is-light" style={{ float: 'right', marginRight: '5px' }}>Відкрита</span>
+            : <span className="tag is-danger is-light" style={{ float: 'right', marginRight: '5px' }}>Зачинена</span>
+        }
         {
           q.active 
             ? <span className="tag is-success">Активна</span>
@@ -85,29 +90,58 @@ const QueuePage = ({ queue: q, size, update: _update }) => {
         >
           <span>Розглянути наступного</span>
         </button>
-        <button
-          className={`button ${q.active ? 'is-danger' : 'is-success'} is-outlined ${loading ? 'is-loading' : ''}`}
-          disabled={loading}
-          onClick={async () => {
-            setLoading(true);
-            
-            try {
-              await api.put(`${api.QUEUE_API}/queues/${q.id}`, { active: !q.active });
+        {
+          api.hasAccess(api.getRole(), 'admin') && 
+          <>
+            <button
+              className={`button ${q.active ? 'is-danger' : 'is-success'} is-outlined ${loading ? 'is-loading' : ''}`}
+              disabled={loading}
+              onClick={async () => {
+                setLoading(true);
+                
+                try {
+                  await api.put(`${api.QUEUE_API}/queues/${q.id}`, { active: !q.active });
 
-              if (isMounted) {
-                update();
-                setLoading(false);
-              }
-            } catch (e) {
-              if (isMounted) {
-                setLoading(false);
-                setError(e);
-              }
-            }
-          }}
-        >
-          <span>{q.active ? 'Зупинити чергу' : 'Відновити чергу'}</span>
-        </button>
+                  if (isMounted) {
+                    update();
+                    setLoading(false);
+                  }
+                } catch (e) {
+                  if (isMounted) {
+                    setLoading(false);
+                    setError(e);
+                  }
+                }
+              }}
+            >
+              <span>{q.active ? 'Зупинити чергу' : 'Відновити чергу'}</span>
+            </button>
+
+            <button
+              className={`button ${q.open ? 'is-danger' : 'is-success'} is-light is-outlined ${loading ? 'is-loading' : ''}`}
+              disabled={loading}
+              onClick={async () => {
+                setLoading(true);
+                
+                try {
+                  await api.put(`${api.QUEUE_API}/queues/${q.id}`, { open: !q.open });
+
+                  if (isMounted) {
+                    update();
+                    setLoading(false);
+                  }
+                } catch (e) {
+                  if (isMounted) {
+                    setLoading(false);
+                    setError(e);
+                  }
+                }
+              }}
+            >
+              <span>{q.open ? 'Закрити чергу' : 'Відкрити чергу'}</span>
+            </button>
+          </>
+        }
       </div>
 
       {

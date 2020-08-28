@@ -13,8 +13,8 @@ const PositionActions = ({ user: u, queue: q, status, position, update }) => {
         className={`button is-success is-small ${loading ? 'is-loading' : ''}`}
         disabled={loading}
         onClick={async () => {
-          if (status != 'processing') {
-            await api.put(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`, { status: 'processing' })
+          if (status != 'processing' && status != 'going') {
+            await api.put(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`, { status: 'going' })
               .then(() => isMounted && router.push(`/queues/${q.id}/users/${u.id}`))
               .catch(console.error);
           } else {

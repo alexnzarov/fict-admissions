@@ -38,7 +38,7 @@ const CreateUserPage = () => {
           try {
             const queueId = dropdownQueue;
             const { data: { user } } = await api.post(`${api.QUEUE_API}/users`, { id: uuid(), first_name: firstName, last_name: lastName, telegram: false });
-            await api.post(`${api.QUEUE_API}/queues/${queueId}/users`, { id: user.id });
+            await api.post(`${api.QUEUE_API}/queues/${queueId}/users`, { id: user.id, force: true });
 
             router.push(`/users/${user.id}`);
           } catch (e) {

@@ -11,6 +11,24 @@ const ProcessingPage = ({ queue: q, user: u, position: p, update }) => {
   const [loading, setLoading] = useState(false);
 
   return (
+    p.status !== 'processing'
+      ? (
+        <button
+          className={`button is-fullwidth is-link ${loading ? 'is-loading' : ''}`}
+          disabled={loading}
+          onClick={async () => {
+            await api.put(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`, { status: 'processing' })
+                .catch(console.error);
+
+            if (isMounted) {
+              update();
+              setLoading(false);
+            }
+          }}
+        >
+          Підтвердити, що абітурієнт прийшов
+        </button>
+      ) :
     <div>
       <hr />
         <div className="field is-grouped">
@@ -66,7 +84,7 @@ const ProcessingPage = ({ queue: q, user: u, position: p, update }) => {
 
 const ProcessingPageContainer = () => {
   const router = useRouter();
-  const { data, error, revalidate, isValidating } = useSWR(`${api.QUEUE_API}/queues/${router.query.id}/users/${router.query.user_id}`, api.fetch, { shouldRetryOnError: false });
+  const { data, error, revalidate, isValidating } = useSWR(`${api.QUEUE_API}/queues/${router.query.id}/users/${router.query.user_id}`, api.fetch, { shouldRetryOnError: false, refreshInterval: 1000 });
   const queueName = data ? data.queue.name : 'Завантажується...';
   const name = data ? `${data.user.firstName}${data.user.lastName ? ` ${data.user.lastName}` : ''}` : 'Завантажується...';
 

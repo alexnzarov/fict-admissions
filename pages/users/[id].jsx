@@ -30,7 +30,7 @@ const QueueRow = ({ queue: q, user: u, update }) => {
 const UserPage = ({ user: u, queues, update }) => {
   const isMounted = useRef(true);
   const registrationTemplate = useSWR(`${api.QUEUE_API}/templates/registration`, api.fetch, { shouldRetryOnError: true });
-  const { data: qdata } = useSWR(`${api.QUEUE_API}/queues`, api.fetch, { shouldRetryOnError: true })
+  const { data: qdata } = useSWR(`${api.QUEUE_API}/queues`, api.fetch, { shouldRetryOnError: true });
   const [dropdownQueue, setDropdownQueue] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -71,7 +71,7 @@ const UserPage = ({ user: u, queues, update }) => {
         disabled={!dropdownQueue || loading}
         onClick={async () => {
           try {
-            await api.post(`${api.QUEUE_API}/queues/${dropdownQueue}/users`, { id: u.id });
+            await api.post(`${api.QUEUE_API}/queues/${dropdownQueue}/users`, { id: u.id, force: true });
 
             if (isMounted) {
               update();

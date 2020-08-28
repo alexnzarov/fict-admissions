@@ -6,6 +6,7 @@ import { useState, useRef } from 'react';
 import ErrorMesage from '../../components/ErrorMessage';
 import PageContainer from '../../components/PageContainer';
 import Pagination from '../../components/Pagination';
+import { useRouter } from 'next/router';
 
 const EmptyPage = () => {
   return (
@@ -16,15 +17,22 @@ const EmptyPage = () => {
 };
 
 const QueueRow = ({ queue: q }) => {
+  const router = useRouter();
   return (
     <tr>
       <td width="0%">{q.id}</td>
       <td width="100%">
-        <b><a href={`/queues/${q.id}`}>{q.name}</a></b>
+        <b><a onClick={() => router.push(`/queues/${q.id}`)}>{q.name}</a></b>
+        
         {
           q.active 
             ? <span className="tag is-success" style={{ float: 'right' }}>Активна</span>
             : <span className="tag is-danger" style={{ float: 'right' }}>Неактивна</span>
+        }
+        {
+          q.open 
+            ? <span className="tag is-success is-light" style={{ float: 'right', marginRight: '5px' }}>Відкрита</span>
+            : <span className="tag is-danger is-light" style={{ float: 'right', marginRight: '5px' }}>Зачинена</span>
         }
       </td>
     </tr>
