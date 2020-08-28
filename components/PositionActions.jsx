@@ -6,12 +6,13 @@ const PositionActions = ({ user: u, queue: q, status, position, update }) => {
   const router = useRouter();
   const isMounted = useRef(true);
   const [loading, setLoading] = useState(false);
+  const isOp = api.hasAccess(api.getRole(), 'operator');
 
   return (
     <div className="buttons is-fullwidth is-centered">
       <button 
         className={`button is-success is-small ${loading ? 'is-loading' : ''}`}
-        disabled={loading}
+        disabled={loading || !isOp}
         onClick={async () => {
           if (status != 'processing' && status != 'going') {
             await api.put(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`, { status: 'going' })
@@ -26,7 +27,7 @@ const PositionActions = ({ user: u, queue: q, status, position, update }) => {
       </button>
       <button 
         className={`button is-warning is-small ${loading ? 'is-loading' : ''}`}
-        disabled={loading}
+        disabled={loading || !isOp}
         onClick={async () => {
           const response = window.prompt('На скільки позицій ви хочете посунути цього користувача?', '10');
           const num = parseInt(response);
@@ -47,7 +48,7 @@ const PositionActions = ({ user: u, queue: q, status, position, update }) => {
       </button>
       <button 
         className={`button is-danger is-small ${loading ? 'is-loading' : ''}`}
-        disabled={loading}
+        disabled={loading || !isOp}
         onClick={async () => {
           const yes = window.confirm('Ви впевнені, що хочете видалити цього користувача з черги?');
           if (yes) {
