@@ -11,24 +11,6 @@ const ProcessingPage = ({ queue: q, user: u, position: p, update }) => {
   const [loading, setLoading] = useState(false);
 
   return (
-    p.status !== 'processing'
-      ? (
-        <button
-          className={`button is-fullwidth is-link ${loading ? 'is-loading' : ''}`}
-          disabled={loading}
-          onClick={async () => {
-            await api.put(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`, { status: 'processing' })
-                .catch(console.error);
-
-            if (isMounted) {
-              update();
-              setLoading(false);
-            }
-          }}
-        >
-          Підтвердити, що абітурієнт прийшов
-        </button>
-      ) :
     <div>
       <hr />
         <div className="field is-grouped">
@@ -77,7 +59,27 @@ const ProcessingPage = ({ queue: q, user: u, position: p, update }) => {
           </button>
         </div>
       <hr />
-      <DocumentEditor defaultData={u.details} />
+      {
+        p.status != 'processing' 
+          ? (
+            <button
+              className={`button is-fullwidth is-link ${loading ? 'is-loading' : ''}`}
+              disabled={loading}
+              onClick={async () => {
+                await api.put(`${api.QUEUE_API}/queues/${q.id}/users/${u.id}`, { status: 'processing' })
+                    .catch(console.error);
+
+                if (isMounted) {
+                  update();
+                  setLoading(false);
+                }
+              }}
+            >
+              Підтвердити, що абітурієнт прийшов
+            </button>
+          )
+          : <DocumentEditor defaultData={u.details} />
+      }
     </div>
   );
 };
